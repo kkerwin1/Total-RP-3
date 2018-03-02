@@ -565,76 +565,6 @@
 		</Scripts>
 	</Button>
 
-	<!-- Color picker button -->
-	<Button name="TRP3_ColorPickerButton" virtual="true">
-		<Size x="16" y="16"/>
-		<HighlightTexture alphaMode="ADD" name="$parentSwatchBgHighlight" file="Interface\SpellActivationOverlay\IconAlert">
-			<Size x="71" y="68"/>
-			<Anchors>
-				<Anchor x="-11" y="11" point="TOPLEFT"/>
-			</Anchors>
-			<TexCoords left="0" right="1" top="0.53" bottom="1"/>
-			<Color r="1.0" g="1.0" b="1.0" a="0.40"/>
-		</HighlightTexture>
-		<Layers>
-			<Layer level="BACKGROUND">
-				<Texture name="$parentSwatchBg">
-					<Color r="1.0" g="1.0" b="1.0"/>
-				</Texture>
-			</Layer>
-			<Layer level="BORDER">
-				<Texture file="Interface\ACHIEVEMENTFRAME\UI-Achievement-IconFrame">
-					<Size>
-						<AbsDimension x="45" y="45"/>
-					</Size>
-					<Anchors>
-						<Anchor x="-5" y="5" point="TOPLEFT"/>
-					</Anchors>
-				</Texture>
-			</Layer>
-			<Layer level="OVERLAY">
-				<Texture file="Interface\Cooldown\star4" name="$parentBlink" alpha="0.0" alphaMode="ADD">
-					<Animations>
-						<AnimationGroup name="$parentAnimate" looping="NONE">
-							<Alpha duration="0.4" toAlpha="1" fromAlpha="0" smoothing="IN" order="1"/>
-							<Rotation degrees="-45" duration="0.4" smoothing="IN" order="1"/>
-							<Alpha duration="0.4" toAlpha="0" fromAlpha="1" smoothing="OUT" startDelay="0.4" order="1"/>
-							<Rotation degrees="-45" duration="0.4" smoothing="OUT" startDelay="0.4" order="1"/>
-
-						</AnimationGroup>
-					</Animations>
-					<Size x="40" y="40"/>
-					<Anchors>
-						<Anchor x="0" y="0" point="CENTER"/>
-					</Anchors>
-				</Texture>
-			</Layer>
-		</Layers>
-		<Scripts>
-			<OnLoad function="TRP3_ColorButtonLoad"/>
-			<OnClick>
-				if button == "LeftButton" then
-					if IsShiftKeyDown() or (TRP3_API.configuration.getValue("default_color_picker")) then
-						TRP3_API.popup.showDefaultColorPicker({self.setColor, self.red, self.green, self.blue});
-					else
-						TRP3_API.popup.showPopup(TRP3_API.popup.COLORS, nil, {self.setColor, self.red, self.green, self.blue});
-					end
-				elseif button == "RightButton" then
-					self.setColor(nil, nil, nil);
-				end
-			</OnClick>
-			<OnEnter>
-				TRP3_RefreshTooltipForFrame(self);
-			</OnEnter>
-			<OnLeave>
-				TRP3_MainTooltip:Hide();
-			</OnLeave>
-			<PostClick>
-				TRP3_API.ui.misc.playUISound("gsCharacterSelection");
-			</PostClick>
-		</Scripts>
-	</Button>
-
 	<!-- Tutorial style hovered frame -->
 	<Frame name="TRP3_HoveredFrame" inherits="GlowBoxTemplate" virtual="true">
 		<Size x="220" y="100"/>
@@ -1143,4 +1073,9 @@
 			</Layer>
 		</Layers>
 	</Frame>
+
+
+	<!-- Newer widgets and components -->
+	<Include file="widgets\widgets.xml"/>
+
 </Ui>
