@@ -123,8 +123,8 @@ function TRP3_ColorPickerButtonMixin:OnClick(button)
 end
 
 function TRP3_ColorPickerButtonMixin:OnEnter()
-	self.Highlight.FadeIn:Play();
+	TRP3_API.ui.misc.playAnimation(self.Highlight.FadeIn);
 end
 function TRP3_ColorPickerButtonMixin:OnLeave()
-	self.Highlight.FadeOut:Play();
+	TRP3_API.ui.misc.playAnimation(self.Highlight.FadeOut);
 end
