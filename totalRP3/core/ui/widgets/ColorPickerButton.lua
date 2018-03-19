@@ -28,15 +28,13 @@ local type = type;
 -- Ellyb imports
 local Color = Ellyb.Color;
 local WHITE = Ellyb.ColorManager.WHITE;
+local System = Ellyb.System;
 
 -- WoW imports
 local IsShiftKeyDown = IsShiftKeyDown;
 
 -- Total RP 3 imports
-local getConfigValue = TRP3_API.configuration.getValue;
-local playUISound = TRP3_API.ui.misc.playUISound;
-local showDefaultColorPicker = TRP3_API.popup.showDefaultColorPicker;
-local showPopup = TRP3_API.popup.showPopup;
+local loc = TRP3_API.loc;
 
 local DEFAULT_ICON = [[Interface\ICONS\icon_petfamily_mechanical]];
 local USE_DEFAULT_COLOR_PICKER = "default_color_picker";
@@ -51,6 +49,20 @@ function TRP3_ColorPickerButtonMixin:OnLoad()
 	self.colorPickerSetColor = function(red, green, blue)
 		self:SetColor(red, green, blue);
 	end
+
+	TRP3_ColorPickerButtonMixin.setColor = Ellyb.Functions.bind(self.SetColor, self);
+
+	---@param tooltip Tooltip
+	Ellyb.Tooltips.getTooltip(self):SetTitle("Color picker"):OnShow(function(tooltip)
+		tooltip:AddTempLine(" ");
+		tooltip:AddTempLine(Ellyb.Strings.clickInstruction(System:FormatKeyboardShortcut(System.CLICKS.LEFT_CLICK), loc.CO_COLOR_SELECT));
+		tooltip:AddTempLine(Ellyb.Strings.clickInstruction(System:FormatKeyboardShortcut(System.CLICKS.RIGHT_CLICK), loc.CO_COLOR_DISCARD));
+
+		if not TRP3_API.configuration.getValue(USE_DEFAULT_COLOR_PICKER) then
+			tooltip:AddTempLine(Ellyb.Strings.clickInstruction(System:FormatKeyboardShortcut(System.MODIFIERS.SHIFT, System.CLICKS.LEFT_CLICK), loc.CO_COLOR_DEFAULT_PICKER));
+		end
+	end);
+
 end
 
 ---SetColor
@@ -90,34 +102,29 @@ end
 function TRP3_ColorPickerButtonMixin:OnSelection(color)
 	-- Backward compatibility: before we would add a onSelection attribute to the button to be the callback
 	-- If we have that we will call it and give it the red, green and blue values
-	if self.onSelection then
+	if self.onSelection and color then
 		self.onSelection(color and color:GetRGB() or nil);
 	end
 end
 
 function TRP3_ColorPickerButtonMixin:OnClick(button)
 	if button == "LeftButton" then
-		if IsShiftKeyDown() or getConfigValue(USE_DEFAULT_COLOR_PICKER) then
-			showDefaultColorPicker({ self.colorPickerSetColor, self:GetColor():GetRGB() });
+		if IsShiftKeyDown() or TRP3_API.configuration.getValue(USE_DEFAULT_COLOR_PICKER) then
+			TRP3_API.popup.showDefaultColorPicker({ self.colorPickerSetColor, self:GetColor():GetRGBAsBytes() });
 		else
-			showPopup(TRP3_API.popup.COLORS, nil, { self.colorPickerSetColor, self:GetColor():GetRGB() });
+			TRP3_API.popup.showPopup(TRP3_API.popup.COLORS, nil, { self.colorPickerSetColor, self:GetColor():GetRGBAsBytes() });
 		end
 
 	elseif button == "RightButton" then
 		self:ResetColor();
 	end
 
-	playUISound("gsCharacterSelection");
+	TRP3_API.ui.misc.playUISound("gsCharacterSelection");
 end
 
 function TRP3_ColorPickerButtonMixin:OnEnter()
-	TRP3_RefreshTooltipForFrame(self);
+	self.Highlight.FadeIn:Play();
 end
-
 function TRP3_ColorPickerButtonMixin:OnLeave()
-	TRP3_MainTooltip:Hide();
-end
-
-function TRP3_ColorPickerButtonMixin:Blink()
-	self.Blink.Animation:Play();
+	self.Highlight.FadeOut:Play();
 end

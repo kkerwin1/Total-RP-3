@@ -17,6 +17,9 @@
 --	limitations under the License.
 ----------------------------------------------------------------------------------
 
+local _, TRP3_API = ...;
+local Ellyb = Ellyb(_);
+
 -- imports
 local Globals, Utils, Events = TRP3_API.globals, TRP3_API.utils, TRP3_API.events;
 local loc = TRP3_API.loc;
@@ -143,6 +146,7 @@ local function saveInDraft(profileName)
 end
 
 local function onNameColorSelected(red, green, blue)
+	if not draftData then return end
 	if red and green and blue then
 		local hexa = strconcat(numberToHexa(red), numberToHexa(green), numberToHexa(blue))
 		draftData.NH = hexa;
@@ -452,9 +456,12 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOAD, function()
 	setTooltipForSameFrame(TRP3_CompanionsPageInformationConsult_NamePanel_ActionButton, "TOP", 0, 5, loc.CM_ACTIONS);
 	TRP3_CompanionsPageInformationConsult_NamePanel_ActionButton:SetScript("OnClick", onActionClick);
 
-	setTooltipForSameFrame(TRP3_CompanionsPageInformationEdit_NamePanel_NameColor, "RIGHT", 0, 5, loc.REG_COMPANION_NAME_COLOR, loc.REG_PLAYER_COLOR_TT);
+	Ellyb.Tooltips.getTooltip(TRP3_CompanionsPageInformationEdit_NamePanel_NameColor):SetTitle(loc.REG_COMPANION_NAME_COLOR)
+
 	setupFieldSet(TRP3_CompanionsPageInformationEdit_NamePanel, loc.REG_PLAYER_NAMESTITLES, 150);
 	setupFieldSet(TRP3_CompanionsPageInformationEdit_About, loc.REG_PLAYER_ABOUT, 150);
+	Ellyb.EditBoxes.setupTabKeyNavigation(TRP3_CompanionsPageInformationEdit_NamePanel_NameField, TRP3_CompanionsPageInformationEdit_NamePanel_TitleField)
+
 	TRP3_CompanionsPageInformationEdit_NamePanel_NameFieldText:SetText(loc.REG_COMPANION_NAME);
 	TRP3_CompanionsPageInformationEdit_NamePanel_TitleFieldText:SetText(loc.REG_COMPANION_TITLE);
 	TRP3_CompanionsPageInformationEdit_NamePanel_CancelButton:SetText(loc.CM_CANCEL);

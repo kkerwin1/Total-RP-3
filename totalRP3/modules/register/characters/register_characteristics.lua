@@ -17,6 +17,12 @@
 -- limitations under the License.
 ----------------------------------------------------------------------------------
 
+local _, TRP3_API = ...;
+local Ellyb = Ellyb(...);
+
+-- Ellyb imports
+local Tooltips = Ellyb.Tooltips;
+
 -- imports
 local Globals, Utils, Comm, Events, UI, Ellyb = TRP3_API.globals, TRP3_API.utils, TRP3_API.communication, TRP3_API.events, TRP3_API.ui, TRP3_API.Ellyb;
 local stEtN = Utils.str.emptyToNil;
@@ -52,6 +58,11 @@ local unregisterMenu = TRP3_API.navigation.menu.unregisterMenu;
 local ignoreID = TRP3_API.register.ignoreID;
 local buildZoneText = Utils.str.buildZoneText;
 local setupEditBoxesNavigation = TRP3_API.ui.frame.setupEditBoxesNavigation;
+
+---@type TRP3_ColorPickerButtonMixin
+local classColorPickerButton = TRP3_RegisterCharact_Edit_ClassButton;
+---@type TRP3_ColorPickerButtonMixin
+local eyeColorPickerButton = TRP3_RegisterCharact_Edit_EyeButton;
 
 local showIconBrowser = function(callback)
 	TRP3_API.popup.showPopup(TRP3_API.popup.ICONS, nil, {callback});
@@ -401,6 +412,13 @@ local function setConsultDisplay(context)
 
 			frame.LeftIcon:SetTexture("Interface\\ICONS\\" .. (psychoStructure.LI or Globals.icons.default));
 			frame.RightIcon:SetTexture("Interface\\ICONS\\" .. (psychoStructure.RI or Globals.icons.default));
+
+			if psychoStructure.LC then
+				Ellyb.Color(psychoStructure.LC):SetTextColor(frame.LeftText);
+			end
+			if psychoStructure.RC then
+				Ellyb.Color(psychoStructure.RC):SetTextColor(frame.RightText);
+			end
 
 			frame.Bar:SetMinMaxValues(0, Globals.PSYCHO_MAX_VALUE_V2);
 
@@ -983,8 +1001,8 @@ function setEditDisplay()
 	TRP3_RegisterCharact_Edit_AgeField:SetText(draftData.AG or "");
 	TRP3_RegisterCharact_Edit_EyeField:SetText(draftData.EC or "");
 
-	TRP3_RegisterCharact_Edit_EyeButton.setColor(hexaToNumber(draftData.EH))
-	TRP3_RegisterCharact_Edit_ClassButton.setColor(hexaToNumber(draftData.CH));
+	eyeColorPickerButton:SetColor(draftData.EH)
+	classColorPickerButton:SetColor(draftData.CH);
 
 	TRP3_RegisterCharact_Edit_HeightField:SetText(draftData.HE or "");
 	TRP3_RegisterCharact_Edit_WeightField:SetText(draftData.WE or "");
@@ -1061,25 +1079,21 @@ function setEditDisplay()
 			frame.Slider:SetMinMaxValues(0, Globals.PSYCHO_MAX_VALUE_V2);
 			frame.Slider:SetScript("OnValueChanged", onPsychoValueChanged);
 
-			setTooltipForSameFrame(frame.CustomLeftIcon, "TOP", 0, 5, loc.UI_ICON_SELECT, loc.REG_PLAYER_PSYCHO_LEFTICON_TT);
-			setTooltipForSameFrame(frame.CustomRightIcon, "TOP", 0, 5, loc.UI_ICON_SELECT, loc.REG_PLAYER_PSYCHO_RIGHTICON_TT);
-			setTooltipForSameFrame(frame.DeleteButton, "TOP", 0, 5, loc.CM_REMOVE);
-			setTooltipForSameFrame(frame.CustomLeftColor, "TOP", 0, 5, loc.REG_PLAYER_PSYCHO_CUSTOMCOLOR, loc.REG_PLAYER_PSYCHO_CUSTOMCOLOR_LEFT_TT);
-			setTooltipForSameFrame(frame.CustomRightColor, "TOP", 0, 5, loc.REG_PLAYER_PSYCHO_CUSTOMCOLOR, loc.REG_PLAYER_PSYCHO_CUSTOMCOLOR_RIGHT_TT);
+			Tooltips.getTooltip(frame.CustomLeftIcon):SetTitle(loc.UI_ICON_SELECT):AddLine(loc.REG_PLAYER_PSYCHO_LEFTICON_TT);
+			Tooltips.getTooltip(frame.CustomRightIcon):SetTitle(loc.UI_ICON_SELECT):AddLine(loc.REG_PLAYER_PSYCHO_RIGHTICON_TT);
+			Tooltips.getTooltip(frame.DeleteButton):SetTitle(loc.CM_REMOVE);
+
+			Tooltips.getTooltip(frame.CustomLeftColor):SetTitle(loc.REG_PLAYER_PSYCHO_CUSTOMCOLOR):AddLine(loc.REG_PLAYER_PSYCHO_CUSTOMCOLOR_LEFT_TT);
+			Tooltips.getTooltip(frame.CustomRightColor):SetTitle(loc.REG_PLAYER_PSYCHO_CUSTOMCOLOR):AddLine(loc.REG_PLAYER_PSYCHO_CUSTOMCOLOR_RIGHT_TT):SetAnchor(Tooltips.ANCHORS.LEFT);
 
 			-- Only need to set up the closure for color pickers once, as it
 			-- just needs a reference to the frame itself.
-			--
-			-- FIXME: When the feature/color_picker_button_mixin branch
-			--        lands we can drop these closures and swap to methods,
-			--        as well as not worry about all the Ellyb.Color -> rgb
-			--        conversion nonsense.
-			frame.CustomLeftColor.onSelection = function(r, g, b)
-				refreshPsychoColor(frame, "LC", r and Ellyb.Color.CreateFromRGBAAsBytes(r, g, b));
+			function frame.CustomLeftColor:OnSelection(color)
+				refreshPsychoColor(frame, "LC", color);
 			end
 
-			frame.CustomRightColor.onSelection = function(r, g, b)
-				refreshPsychoColor(frame, "RC", r and Ellyb.Color.CreateFromRGBAAsBytes(r, g, b));
+			function frame.CustomRightColor:OnSelection(color)
+				refreshPsychoColor(frame, "RC", color);
 			end
 
 			tinsert(psychoEditCharFrame, frame);
@@ -1129,15 +1143,15 @@ function setEditDisplay()
 		-- invoke onSelected anyway, which means we'll update the bars through
 		-- that handler.
 		if psychoStructure.LC then
-			frame.CustomLeftColor.setColor(Ellyb.Color(psychoStructure.LC):GetRGBAsBytes());
+			frame.CustomLeftColor:SetColor(psychoStructure.LC);
 		else
-			frame.CustomLeftColor.setColor(nil);
+			frame.CustomLeftColor:SetColor(nil);
 		end
 
 		if psychoStructure.RC then
-			frame.CustomRightColor.setColor(Ellyb.Color(psychoStructure.RC):GetRGBAsBytes());
+			frame.CustomRightColor:SetColor(psychoStructure.RC);
 		else
-			frame.CustomRightColor.setColor(nil);
+			frame.CustomRightColor:SetColor(nil);
 		end
 
 		frame.psychoIndex = frameIndex;
@@ -1416,8 +1430,9 @@ function TRP3_API.register.inits.characteristicsInit()
 	TRP3_RegisterCharact_Edit_BirthplaceButton:SetScript("OnClick", function()
 		TRP3_RegisterCharact_Edit_BirthplaceField:SetText(buildZoneText());
 	end);
-	TRP3_RegisterCharact_Edit_ClassButton.onSelection = onClassColorSelected;
-	TRP3_RegisterCharact_Edit_EyeButton.onSelection = onEyeColorSelected;
+
+	classColorPickerButton.onSelection = onClassColorSelected;
+	eyeColorPickerButton.onSelection = onEyeColorSelected;
 
 	setupDropDownMenu(TRP3_RegisterCharact_Edit_PsychoAdd, PSYCHO_PRESETS_DROPDOWN, psychoAdd, 0, true, false);
 
@@ -1436,8 +1451,9 @@ function TRP3_API.register.inits.characteristicsInit()
 	setTooltipForSameFrame(TRP3_RegisterCharact_Edit_HeightFieldHelp, "RIGHT", 0, 5, loc.REG_PLAYER_HEIGHT, loc.REG_PLAYER_HEIGHT_TT);
 	setTooltipForSameFrame(TRP3_RegisterCharact_Edit_WeightFieldHelp, "RIGHT", 0, 5, loc.REG_PLAYER_WEIGHT, loc.REG_PLAYER_WEIGHT_TT);
 	setTooltipForSameFrame(TRP3_RegisterCharact_Edit_BirthplaceButton, "RIGHT", 0, 5, loc.REG_PLAYER_HERE, loc.REG_PLAYER_HERE_TT);
-	setTooltipForSameFrame(TRP3_RegisterCharact_Edit_EyeButton, "RIGHT", 0, 5, loc.REG_PLAYER_EYE, loc.REG_PLAYER_COLOR_TT);
-	setTooltipForSameFrame(TRP3_RegisterCharact_Edit_ClassButton, "RIGHT", 0, 5, loc.REG_PLAYER_COLOR_CLASS, loc.REG_PLAYER_COLOR_CLASS_TT .. loc.REG_PLAYER_COLOR_TT);
+
+	Ellyb.Tooltips.getTooltip(eyeColorPickerButton):SetTitle(loc.REG_PLAYER_EYE):AddLine(loc.REG_PLAYER_EYE_TT);
+	Ellyb.Tooltips.getTooltip(classColorPickerButton):SetTitle(loc.REG_PLAYER_COLOR_CLASS):AddLine(loc.REG_PLAYER_COLOR_CLASS_TT);
 
 	setupFieldSet(TRP3_RegisterCharact_NamePanel, loc.REG_PLAYER_NAMESTITLES, 150);
 	setupFieldSet(TRP3_RegisterCharact_Edit_NamePanel, loc.REG_PLAYER_NAMESTITLES, 150);
