@@ -31,14 +31,13 @@ local getPlayerCharacter, getPlayerCurrentProfileID = TRP3_API.profile.getPlayer
 local getProfiles = TRP3_API.profile.getProfiles;
 local Utils, Events, Globals = TRP3_API.utils, TRP3_API.events, TRP3_API.globals;
 local setupListBox = TRP3_API.ui.listbox.setupListBox;
-local setTooltipForSameFrame = TRP3_API.ui.tooltip.setTooltipForSameFrame;
 local icon, color = Utils.str.icon, Utils.str.color;
 local playUISound = TRP3_API.ui.misc.playUISound;
 local getConfigValue, registerConfigKey, registerConfigHandler = TRP3_API.configuration.getValue, TRP3_API.configuration.registerConfigKey, TRP3_API.configuration.registerHandler;
 local setTooltipForFrame, refreshTooltip, mainTooltip = TRP3_API.ui.tooltip.setTooltipForFrame, TRP3_API.ui.tooltip.refresh, TRP3_MainTooltip;
 local getCurrentContext, getCurrentPageID = TRP3_API.navigation.page.getCurrentContext, TRP3_API.navigation.page.getCurrentPageID;
 local registerMenu, registerPage = TRP3_API.navigation.menu.registerMenu, TRP3_API.navigation.page.registerPage;
-local registerPage, setPage = TRP3_API.navigation.page.registerPage, TRP3_API.navigation.page.setPage;
+local setPage = TRP3_API.navigation.page.setPage;
 local assert, tostring, tinsert, date, time, pairs, tremove, EMPTY, unpack, wipe, strconcat = assert, tostring, tinsert, date, time, pairs, tremove, TRP3_API.globals.empty, unpack, wipe, strconcat;
 local initList, handleMouseWheel = TRP3_API.ui.list.initList, TRP3_API.ui.list.handleMouseWheel;
 local TRP3_DashboardNotifications, TRP3_DashboardNotificationsSlider, TRP3_DashboardNotifications_No = TRP3_DashboardNotifications, TRP3_DashboardNotificationsSlider, TRP3_DashboardNotifications_No;
@@ -46,7 +45,6 @@ local setupFieldSet = TRP3_API.ui.frame.setupFieldPanel;
 local displayDropDown = TRP3_API.ui.listbox.displayDropDown;
 local displayMessage, RaidWarningFrame = TRP3_API.utils.message.displayMessage, RaidWarningFrame;
 local GetInventoryItemID, GetItemInfo = GetInventoryItemID, GetItemInfo;
-local tconcat = table.concat;
 
 -- Total RP 3 imports
 local loc = TRP3_API.loc;
@@ -155,7 +153,7 @@ TRP3_API.dashboard.init = function()
 			},
 			button = {
 				x = -50, y = 0, anchor = "RIGHT",
-				text = loc("DB_TUTO_1"):format(TRP3_API.globals.player_id),
+				text = loc.DB_TUTO_1:format(TRP3_API.globals.player_id),
 				textWidth = 425,
 				arrow = "UP"
 			}
@@ -176,23 +174,23 @@ TRP3_API.dashboard.init = function()
 		tutorialProvider = function() return TUTORIAL_STRUCTURE; end
 	});
 
-	setupFieldSet(TRP3_DashboardStatus, loc("DB_STATUS"), 150);
-	TRP3_DashboardStatus_CharactStatus:SetText(loc("DB_STATUS_RP"));
+	setupFieldSet(TRP3_DashboardStatus, loc.DB_STATUS, 150);
+	TRP3_DashboardStatus_CharactStatus:SetText(loc.DB_STATUS_RP);
 	local OOC_ICON = "|TInterface\\COMMON\\Indicator-Red:15|t";
 	local IC_ICON = "|TInterface\\COMMON\\Indicator-Green:15|t";
 	local statusTab = {
-		{IC_ICON .. " " .. loc("DB_STATUS_RP_IC"), 1, loc("DB_STATUS_RP_IC_TT")},
-		{OOC_ICON .. " " .. loc("DB_STATUS_RP_OOC"), 2, loc("DB_STATUS_RP_OOC_TT")},
+		{IC_ICON .. " " .. loc.DB_STATUS_RP_IC, 1, loc.DB_STATUS_RP_IC_TT},
+		{OOC_ICON .. " " .. loc.DB_STATUS_RP_OOC, 2, loc.DB_STATUS_RP_OOC_TT},
 	};
 	setupListBox(TRP3_DashboardStatus_CharactStatusList, statusTab, onStatusChange, nil, 170, true);
 
-	TRP3_DashboardStatus_XPStatus:SetText(loc("DB_STATUS_XP"));
+	TRP3_DashboardStatus_XPStatus:SetText(loc.DB_STATUS_XP);
 	local BEGINNER_ICON = "|TInterface\\TARGETINGFRAME\\UI-TargetingFrame-Seal:20|t";
 	local VOLUNTEER_ICON = "|TInterface\\TARGETINGFRAME\\PortraitQuestBadge:15|t";
 	local xpTab = {
-		{BEGINNER_ICON .. " " .. loc("DB_STATUS_XP_BEGINNER"), 1, loc("DB_STATUS_XP_BEGINNER_TT")},
-		{loc("DB_STATUS_RP_EXP"), 2, loc("DB_STATUS_RP_EXP_TT")},
-		{VOLUNTEER_ICON .. " " .. loc("DB_STATUS_RP_VOLUNTEER"), 3, loc("DB_STATUS_RP_VOLUNTEER_TT")},
+		{BEGINNER_ICON .. " " .. loc.DB_STATUS_XP_BEGINNER, 1, loc.DB_STATUS_XP_BEGINNER_TT},
+		{loc.DB_STATUS_RP_EXP, 2, loc.DB_STATUS_RP_EXP_TT},
+		{VOLUNTEER_ICON .. " " .. loc.DB_STATUS_RP_VOLUNTEER, 3, loc.DB_STATUS_RP_VOLUNTEER_TT},
 	};
 	setupListBox(TRP3_DashboardStatus_XPStatusList, xpTab, onStatusXPChange, nil, 170, true);
 
@@ -206,114 +204,6 @@ TRP3_API.dashboard.init = function()
 			onShow(nil);
 		end
 	end);
-
-	-- Tab bar
-	local whatsNewText = loc("WHATS_NEW_17_1") .. loc("WHATS_NEW_17");
-	local moreModuleText = loc("MORE_MODULES_2");
-	local aboutText = loc("THANK_YOU_1");
-
-	moreModuleText = Utils.str.toHTML(moreModuleText);
-	whatsNewText = Utils.str.toHTML(whatsNewText);
-	aboutText = Utils.str.toHTML(aboutText:format(TRP3_API.globals.version_display, TRP3_API.globals.version, ELLYPSE_PATREON_SUPPORTERS));
-
-	local frame = CreateFrame("Frame", "TRP3_DashboardBottomTabBar", TRP3_DashboardBottom);
-	frame:SetSize(400, 30);
-	frame:SetPoint("TOPLEFT", 17, 30);
-	frame:SetFrameLevel(1);
-	local tabGroup = TRP3_API.ui.frame.createTabPanel(frame,
-		{
-			{ loc("DB_NEW"), 1, 150 },
-			{ loc("DB_ABOUT"), 2, 175 },
-			{ loc("DB_MORE"), 3, 150 },
-		},
-		function(tabWidget, value)
-			if value == 1 then
-				TRP3_DashboardBottomContent:SetText(whatsNewText);
-				TRP3_DashboardBottomContent.text = whatsNewText;
-			elseif value == 2 then
-				TRP3_DashboardBottomContent:SetText(aboutText);
-				TRP3_DashboardBottomContent.text = aboutText;
-			elseif value == 3 then
-				TRP3_DashboardBottomContent:SetText(moreModuleText);
-				TRP3_DashboardBottomContent.text = moreModuleText;
-			end
-		end
-	);
-
-	local function toggleSettingWithToast(settingName)
-		if TRP3_API.configuration.getValue(settingName) then
-			TRP3_API.configuration.setValue(settingName, false);
-			TRP3_API.ui.tooltip.toast(loc("OPTION_DISABLED_TOAST"), 3);
-		else
-			TRP3_API.configuration.setValue(settingName, true);
-			TRP3_API.ui.tooltip.toast(loc("OPTION_ENABLED_TOAST"), 3);
-		end
-	end
-
-	TRP3_DashboardBottomContent:SetFontObject("p", GameFontNormal);
-	TRP3_DashboardBottomContent:SetFontObject("h1", GameFontNormalHuge3);
-	TRP3_DashboardBottomContent:SetFontObject("h2", GameFontNormalHuge);
-	TRP3_DashboardBottomContent:SetFontObject("h3", GameFontNormalLarge);
-	TRP3_DashboardBottomContent:SetTextColor("h1", 1, 1, 1);
-	TRP3_DashboardBottomContent:SetTextColor("h2", 1, 1, 1);
-	TRP3_DashboardBottomContent:SetTextColor("h3", 1, 1, 1);
-	TRP3_DashboardBottomContent:SetScript("OnHyperlinkClick", function(self, url, text, button)
-		--[[
-		-- Twitter links
-		 ]]
-		if url:sub(1, 7) == "twitter" then
-			if Social_ToggleShow and button == "LeftButton" then
-				Social_ToggleShow(url:gsub("twitter", "|cff61AAEE@") .. "|r ");
-			else
-				url = url:gsub("twitter", "http://twitter.com/");
-				TRP3_API.Ellyb.Popups:OpenURL(url, "|cff55aceeTwitter profile|r\n");
-			end
-		--[[
-		-- Links relative to the What's new section (valid for version 1.3.0)
-		 ]]
-       elseif url == "right_click_profile" then
-			toggleSettingWithToast("CONFIG_RIGHT_CLICK_OPEN_PROFILE")
-		-- Toggle the option to replace companion name in NPC speeches
-		elseif url == "companion_speeches" then
-			toggleSettingWithToast("chat_npcspeech_replacement")
-		-- Toggle the option to use the default color picker
-		elseif url == "default_color_picker" then
-			toggleSettingWithToast("default_color_picker")
-		-- Toggle the option to disable chat while OOC
-		elseif url == "disable_chat_ooc" then
-			toggleSettingWithToast("chat_disable_ooc")
-		-- Mature filter settings slider
-		elseif url == "open_mature_filter_settings" then
-			TRP3_API.navigation.menu.selectMenu("main_91_config_main_config_register");
-		--[[
-	 	-- Fallback, open URL in a popup
-		 ]]
-		else
-			TRP3_API.Ellyb.Popups:OpenURL(url, loc.UI_LINK_SAFE);
-		end
-	end);
-	TRP3_DashboardBottomContent:SetScript("OnHyperlinkEnter", function(self, link, text)
-		TRP3_MainTooltip:Hide();
-		TRP3_MainTooltip:SetOwner(TRP3_DashboardBottomContent, "ANCHOR_CURSOR");
-
-		if Social_ToggleShow and link:sub(1, 7) == "twitter" then
-			TRP3_MainTooltip:AddLine(link:gsub("twitter", "|cff61AAEE@"), 1, 1, 1, true);
-			TRP3_MainTooltip:AddLine("|cffffff00" .. loc("CM_CLICK") .. ":|r " .. loc("CM_TWEET")
-				.. "|n|cffffff00" .. loc("CM_R_CLICK") .. ":|r " .. loc("CM_TWEET_PROFILE"), 1, 1, 1, true);
-		else
-			TRP3_MainTooltip:AddLine(text, 1, 1, 1, true);
-			TRP3_MainTooltip:AddLine("|cffffff00" .. loc("CM_CLICK") .. ":|r " .. loc("CM_OPEN"), 1, 1, 1, true);
-		end
-		TRP3_MainTooltip:Show();
-	end);
-	TRP3_DashboardBottomContent:SetScript("OnHyperlinkLeave", function() TRP3_MainTooltip:Hide(); end);
-	tabGroup:SelectTab(1);
-
-	-- Resizing
-	TRP3_API.events.listenToEvent(TRP3_API.events.NAVIGATION_RESIZED, function(containerwidth, containerHeight)
-		TRP3_DashboardBottomContent:SetSize(containerwidth - 54, 5);
-		TRP3_DashboardBottomContent:SetText(TRP3_DashboardBottomContent.text);
-	end);
 end
 
 local function profileSelected(profileID)
@@ -326,16 +216,16 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOADED, function()
 
 		local updateToolbarButton = TRP3_API.toolbar.updateToolbarButton;
 		-- away/dnd
-		local status1Text = color("w")..loc("TB_STATUS")..": "..color("r")..loc("TB_DND_MODE");
-		local status1SubText = color("y")..loc("CM_CLICK")..": "..color("w")..(loc("TB_GO_TO_MODE"):format(color("g")..loc("TB_NORMAL_MODE")..color("w")));
-		local status2Text = color("w")..loc("TB_STATUS")..": "..color("o")..loc("TB_AFK_MODE");
-		local status2SubText = color("y")..loc("CM_CLICK")..": "..color("w")..(loc("TB_GO_TO_MODE"):format(color("g")..loc("TB_NORMAL_MODE")..color("w")));
-		local status3Text = color("w")..loc("TB_STATUS")..": "..color("g")..loc("TB_NORMAL_MODE");
-		local status3SubText = color("y")..loc("CM_L_CLICK")..": "..color("w")..(loc("TB_GO_TO_MODE"):format(color("o")..loc("TB_AFK_MODE")..color("w"))).."\n"..color("y")..loc("CM_R_CLICK")..": "..color("w")..(loc("TB_GO_TO_MODE"):format(color("r")..loc("TB_DND_MODE")..color("w")));
+		local status1Text = color("w")..loc.TB_STATUS..": "..color("r")..loc.TB_DND_MODE;
+		local status1SubText = color("y")..loc.CM_CLICK..": "..color("w")..(loc.TB_GO_TO_MODE:format(color("g")..loc.TB_NORMAL_MODE..color("w")));
+		local status2Text = color("w")..loc.TB_STATUS..": "..color("o")..loc.TB_AFK_MODE;
+		local status2SubText = color("y")..loc.CM_CLICK..": "..color("w")..(loc.TB_GO_TO_MODE:format(color("g")..loc.TB_NORMAL_MODE..color("w")));
+		local status3Text = color("w")..loc.TB_STATUS..": "..color("g")..loc.TB_NORMAL_MODE;
+		local status3SubText = color("y")..loc.CM_L_CLICK..": "..color("w")..(loc.TB_GO_TO_MODE:format(color("o")..loc.TB_AFK_MODE..color("w"))).."\n"..color("y")..loc.CM_R_CLICK..": "..color("w")..(loc.TB_GO_TO_MODE:format(color("r")..loc.TB_DND_MODE..color("w")));
 		Button_Status = {
 			id = "aa_trp3_c",
 			icon = "Ability_Rogue_MasterOfSubtlety",
-			configText = loc("CO_TOOLBAR_CONTENT_STATUS"),
+			configText = loc.CO_TOOLBAR_CONTENT_STATUS,
 			onUpdate = function(Uibutton, buttonStructure)
 				updateToolbarButton(Uibutton, buttonStructure);
 				if GetMouseFocus() == Uibutton then
@@ -376,19 +266,18 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOADED, function()
 
 		-- Toolbar RP status
 		local RP_ICON, OOC_ICON = "spell_shadow_charm", "Inv_misc_grouplooking";
-		local rpTextOn = loc("TB_RPSTATUS_ON");
-		local rpTextOff = loc("TB_RPSTATUS_OFF");
-		local rpText2 = color("y")..loc("CM_L_CLICK")..": "..color("w")..loc("TB_RPSTATUS_TO_ON");
-		rpText2 = rpText2.."\n"..color("y")..loc("CM_R_CLICK")..": "..color("w")..loc("TB_SWITCH_PROFILE");
-		local rpText3 = color("y")..loc("CM_L_CLICK")..": "..color("w")..loc("TB_RPSTATUS_TO_OFF");
-		rpText3 = rpText3.."\n"..color("y")..loc("CM_R_CLICK")..": "..color("w")..loc("TB_SWITCH_PROFILE");
-		local get = TRP3_API.profile.getData;
+		local rpTextOn = loc.TB_RPSTATUS_ON;
+		local rpTextOff = loc.TB_RPSTATUS_OFF;
+		local rpText2 = color("y")..loc.CM_L_CLICK..": "..color("w")..loc.TB_RPSTATUS_TO_ON;
+		rpText2 = rpText2.."\n"..color("y")..loc.CM_R_CLICK..": "..color("w")..loc.TB_SWITCH_PROFILE;
+		local rpText3 = color("y")..loc.CM_L_CLICK..": "..color("w")..loc.TB_RPSTATUS_TO_OFF;
+		rpText3 = rpText3.."\n"..color("y")..loc.CM_R_CLICK..": "..color("w")..loc.TB_SWITCH_PROFILE;
 		local defaultIcon = TRP3_API.globals.player_icon;
 
-		local Button_RPStatus = {
+		Button_RPStatus = {
 			id = "aa_trp3_rpstatus",
 			icon = "Inv_misc_grouplooking",
-			configText = loc("CO_TOOLBAR_CONTENT_RPSTATUS"),
+			configText = loc.CO_TOOLBAR_CONTENT_RPSTATUS,
 			onEnter = function(Uibutton, buttonStructure) end,
 			onUpdate = function(Uibutton, buttonStructure)
 				updateToolbarButton(Uibutton, buttonStructure);
@@ -414,7 +303,7 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOADED, function()
 					local list = getProfiles();
 
 					local dropdownItems = {};
-					tinsert(dropdownItems,{loc("TB_SWITCH_PROFILE"), nil});
+					tinsert(dropdownItems,{loc.TB_SWITCH_PROFILE, nil});
 					local currentProfileID = getPlayerCurrentProfileID()
 					for key, value in pairs(list) do
 						local icon = value.player.characteristics.IC or Globals.icons.profile_default;

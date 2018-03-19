@@ -17,11 +17,15 @@
 -- limitations under the License.
 ----------------------------------------------------------------------------------
 
+---@type TRP3_API
+local _, TRP3_API = ...;
+
 -- Public access
 TRP3_API.importer = {};
 
 -- imports
-local Globals, loc = TRP3_API.globals, TRP3_API.locale.getText;
+local Globals = TRP3_API.globals;
+local loc = TRP3_API.loc;
 local handleMouseWheel = TRP3_API.ui.list.handleMouseWheel;
 local initList = TRP3_API.ui.list.initList;
 local setupIconButton = TRP3_API.ui.frame.setupIconButton;
@@ -115,7 +119,7 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOAD, function()
 
 	local function uiInitProfileList()
 		initList(TRP3_CharacterImporterList, profiles, TRP3_CharacterImporterListSlider);
-		TRP3_CharacterImporterAll:SetText(loc("PR_IMPORT_IMPORT_ALL") .. " (" .. (tsize(profiles)) .. ")");
+		TRP3_CharacterImporterAll:SetText(loc.PR_IMPORT_IMPORT_ALL .. " (" .. (tsize(profiles)) .. ")");
 		if tsize(profiles) == 0 then
 			TRP3_CharacterImporterAll:Disable();
 			TRP3_CharacterImporterListEmpty:Show();
@@ -148,13 +152,13 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOAD, function()
 		-- it will be displayed as "will be imported". If not, it will be greyed out.
 		for key, value in pairs(importableData) do
 			if profile.info[key] then
-				tooltip = tooltip .. "|cff00ff00" .. value .. "|r\n";
+				tooltip = tooltip .. TRP3_API.Ellyb.ColorManager.GREEN(value)"\n";
 			else
-				tooltip = tooltip .. "|cffcccccc" .. value .. "|r\n";
+				tooltip = tooltip .. TRP3_API.Ellyb.ColorManager.GREY(value)"\n";
 			end
 		end
 
-		setTooltipForSameFrame(_G[widget:GetName() .. "Info"], "RIGHT", 0, 0, loc("PR_IMPORT_WILL_BE_IMPORTED") .. " :", tooltip);
+		setTooltipForSameFrame(_G[widget:GetName() .. "Info"], "RIGHT", 0, 0, loc.PR_IMPORT_WILL_BE_IMPORTED .. " :", tooltip);
 	end
 
 	local function refreshDisplay()
@@ -182,5 +186,5 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOAD, function()
 	TRP3_CharacterImporterList.widgetTab = widgetTab;
 	TRP3_CharacterImporterList.decorate = decorateProfileList;
 	TRP3_CharacterImporterAll:SetScript("OnClick", importAll);
-	TRP3_CharacterImporterListEmpty:SetText(loc("PR_IMPORT_EMPTY"));
+	TRP3_CharacterImporterListEmpty:SetText(loc.PR_IMPORT_EMPTY);
 end);
