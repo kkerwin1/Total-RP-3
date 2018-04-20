@@ -53,9 +53,12 @@ local GetPlayerMapPosition = GetPlayerMapPosition;
 local GetCurrentMapAreaID = GetCurrentMapAreaID;
 
 function TRP3_API.map.getCurrentCoordinates()
+	return 0, 0, 0;
+	--[[
+	TODO FIX ME
 	local mapID = GetCurrentMapAreaID();
 	local x, y = GetPlayerMapPosition("player");
-	return mapID, x, y;
+	return mapID, x, y;]]
 end
 
 --*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -369,13 +372,15 @@ local function onButtonClicked(self)
 	displayDropDown(self, structure, launchScan, 0, true);
 end
 
+--[[
+TODO REMOVE THIS (it shouldn't be necessary anymore)
 local function onWorldMapUpdate()
 	local mapID = GetCurrentMapAreaID();
 	if currentMapID ~= mapID then
 		currentMapID = mapID;
 		hideAllMarkers();
 	end
-end
+end]]
 
 TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOAD, function()
 	setupIconButton(TRP3_WorldMapButton, "icon_treasuremap");
@@ -391,7 +396,7 @@ TRP3_API.events.listenToEvent(TRP3_API.events.WORKFLOW_ON_LOAD, function()
 		self.refreshTimer = self.refreshTimer + elapsed;
 	end);
 
-	Utils.event.registerHandler("WORLD_MAP_UPDATE", onWorldMapUpdate);
+--[[	Utils.event.registerHandler("WORLD_MAP_UPDATE", onWorldMapUpdate);]]
 end);
 
 local CONFIG_MAP_BUTTON_POSITION = "MAP_BUTTON_POSITION";
@@ -404,8 +409,8 @@ local function placeMapButton(position)
 	---@type Frame
 	local worldMapButton = TRP3_WorldMapButton;
 
-	worldMapButton:SetParent(WorldMapFrame.UIElementsFrame);
-	TRP3_ScanLoaderFrame:SetParent(WorldMapFrame.UIElementsFrame)
+	worldMapButton:SetParent(TestWorldMapFrame.UIElementsFrame);
+	TRP3_ScanLoaderFrame:SetParent(TestWorldMapFrame.UIElementsFrame)
 	worldMapButton:ClearAllPoints();
 
 	local xPadding = 10;

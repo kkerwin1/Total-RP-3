@@ -950,7 +950,7 @@ local PlaySoundFile = PlaySoundFile;
 --- Patch 7.3 compatibility preparation
 local PlaySound = PlaySound;
 
-if select(4, GetBuildInfo()) == 70300 then
+if select(4, GetBuildInfo()) >= 70300 then
 	-- 7.3 uses IDs instead of sound strings. This table is mapping the IDs we need to use instead
 	local FILE_IDS_TO_OLD_PATHS = {
 		["QUESTLOGOPEN"] = 844, -- SOUNDKIT.IG_QUEST_LOG_OPEN
