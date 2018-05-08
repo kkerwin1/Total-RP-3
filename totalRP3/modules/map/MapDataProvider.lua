@@ -37,16 +37,15 @@ function TRP3_MapDataProviderMixin:RefreshAllData(fromOnShow, ...)
 
 	if not self.data then return end
 
-	local mapID = self:GetMap():GetMapID();
-
-	for k, POIInfo in pairs(TRP3_API.map.getLatestMapScanContent(mapID)) do
-		self:GetMap():AcquirePin(MAP_PIN_TEMPLATE, POIInfo);
+	for _, POIInfo in pairs(self.data) do
+		self:GetMap():AcquirePin(self.pinTemplate, POIInfo);
 	end
 
 end
 
-function TRP3_MapDataProviderMixin:OnScan(data)
+function TRP3_MapDataProviderMixin:OnScan(data, pinTemplate)
 	self.data = data;
+	self.pinTemplate = pinTemplate;
 	self:RefreshAllData();
 end
 
