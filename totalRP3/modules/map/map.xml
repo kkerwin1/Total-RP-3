@@ -21,7 +21,15 @@
 
 	<Script file="MapDataProvider.lua"/>
 
-	<Frame name="TRP3_MapPinTemplate" inherits="BaseHighlightableMapPoiPinTemplate" mixin="TRP3_MapPinMixin" virtual="true" />
+	<Frame name="TRP3_PlayerMapPinTemplate" inherits="BaseHighlightableMapPoiPinTemplate" mixin="TRP3_PlayerMapPinMixin" virtual="true">
+		<Animations>
+			<AnimationGroup parentKey="Bounce" setToFinalAlpha="true">
+				<Alpha toAlpha="1" fromAlpha="0" duration="0.2"/>
+				<Scale scaleX="1.5" scaleY="1.5" duration="0.2"/>
+				<Scale scaleX="0.5" scaleY="0.5" duration="0.2" startDelay="0.2"/>
+			</AnimationGroup>
+		</Animations>
+	</Frame>
 
 	<Button name="TRP3_WorldMapButton" parent="UIParent" inherits="TRP3_IconButton" frameStrata="FULLSCREEN" toplevel="true" motionScriptsWhileDisabled="true">
 		<Frames>

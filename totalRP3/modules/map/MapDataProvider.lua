@@ -20,9 +20,10 @@
 
 ---@type TRP3_API
 local _, TRP3_API = ...;
+local Ellyb = Ellyb(...);
 
 -- This is the name of the template as defined in the XML file
-local MAP_PIN_TEMPLATE = "TRP3_MapPinTemplate";
+local MAP_PIN_TEMPLATE = "TRP3_PlayerMapPinTemplate";
 
 ---@type MapCanvasDataProviderMixin|{GetMap:fun():MapCanvasMixin}
 TRP3_MapDataProviderMixin = CreateFromMixins(MapCanvasDataProviderMixin);
@@ -31,37 +32,72 @@ function TRP3_MapDataProviderMixin:RemoveAllData()
 	self:GetMap():RemoveAllPinsByTemplate(MAP_PIN_TEMPLATE);
 end
 
-function TRP3_MapDataProviderMixin:RefreshAllData(structure)
+function TRP3_MapDataProviderMixin:RefreshAllData(fromOnShow, ...)
 	self:RemoveAllData();
 
-	if not structure then return
-	self:GetMap():RemovePin()
+	if not self.data then return end
+
+	local mapID = self:GetMap():GetMapID();
+
+	for k, POIInfo in pairs(TRP3_API.map.getLatestMapScanContent(mapID)) do
+		self:GetMap():AcquirePin(MAP_PIN_TEMPLATE, POIInfo);
 	end
 
-	for key, entry in pairs(structure.saveStructure) do
-		local marker = self:GetMap():AcquirePin(MAP_PIN_TEMPLATE, entry);
-
-		if structure.scanMarkerDecorator then
-			structure.scanMarkerDecorator(key, entry, marker);
-		end
-
-		TRP3_API.map.decorateMarker(marker, TRP3_API.map.DECORATION_TYPES.CHARACTER);
-		TRP3_API.map.animateMarker(marker, entry.x, entry.y, structure.noAnim);
-	end
 end
 
-function TRP3_MapDataProviderMixin:OnEvent(event, ...)
-	if event == "TRP3_MARKERS_UPDATED" then
-		self:RefreshAllData(...);
-	end
+function TRP3_MapDataProviderMixin:OnScan(data)
+	self.data = data;
+	self:RefreshAllData();
+end
 
+function TRP3_MapDataProviderMixin:OnMapChanged()
+	self.data = nil;
+	self:RefreshAllData();
 end
 
 -- Create the pin template, above group members
-TRP3_MapPinMixin = BaseMapPoiPinMixin:CreateSubPin("PIN_FRAME_LEVEL_VEHICLE_ABOVE_GROUP_MEMBER");
+---@type BaseMapPoiPinMixin|MapCanvasPinMixin|{GetMap:fun():MapCanvasMixin}
+TRP3_PlayerMapPinMixin = BaseMapPoiPinMixin:CreateSubPin("PIN_FRAME_LEVEL_VEHICLE_ABOVE_GROUP_MEMBER");
 
----@type TRP3_MapDataProviderMixin|MapCanvasDataProviderMixin|{GetMap:fun():MapCanvasMixin}
-TRP3_API.MapDataProvider = CreateFromMixins(TRP3_MapDataProviderMixin);
+local MAX_DISTANCE_MARKER = math.sqrt(0.5 * 0.5 + 0.5 * 0.5);
 
+---@param poiInfo {position:Vector2DMixin}
+function TRP3_PlayerMapPinMixin:OnAcquired(poiInfo)
+	poiInfo.atlasName = "RaidMember";
+	BaseMapPoiPinMixin.OnAcquired(self, poiInfo);
 
-TestWorldMapFrame:AddDataProvider(TRP3_API.MapDataProvider);
+	self.Texture:SetSize(16, 16);
+	self:SetSize(16, 16);
+	Ellyb.Tooltips.getTooltip(self):ClearLines():SetTitle("Players")
+
+	local x, y= poiInfo.position:GetXY();
+	local distanceX = 0.5 - x;
+	local distanceY = 0.5 - y;
+	local distance = math.sqrt(distanceX * distanceX + distanceY * distanceY);
+	local factor = distance/MAX_DISTANCE_MARKER;
+
+	self:Hide();
+	C_Timer.After(factor, function()
+		self:Show();
+		TRP3_API.ui.misc.playAnimation(self.Bounce);
+	end);
+end
+
+function TRP3_PlayerMapPinMixin:OnMouseEnter()
+
+	local tooltip = Ellyb.Tooltips.getTooltip(self)
+	-- Iterate over the blips in a first pass to build a list of all the
+	-- ones we're mousing over.
+	for marker in self:GetMap():EnumerateAllPins() do
+		if marker:IsVisible() and marker:IsMouseOver() then
+			tooltip:AddTempLine(marker.name);
+		end
+	end
+
+	tooltip:Show();
+
+end
+
+TRP3_API.MapDataProvider = TRP3_MapDataProviderMixin;
+
+TestWorldMapFrame:AddDataProvider(TRP3_MapDataProviderMixin);
