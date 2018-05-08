@@ -19,6 +19,10 @@
 		limitations under the License.
 	-->
 
+	<Script file="MapDataProvider.lua"/>
+
+	<Frame name="TRP3_MapPinTemplate" inherits="BaseHighlightableMapPoiPinTemplate" mixin="TRP3_MapPinMixin" virtual="true" />
+
 	<Button name="TRP3_WorldMapButton" parent="UIParent" inherits="TRP3_IconButton" frameStrata="FULLSCREEN" toplevel="true" motionScriptsWhileDisabled="true">
 		<Frames>
 			<Cooldown parentKey="Cooldown" setAllPoints="true" inherits="CooldownFrameTemplate" />

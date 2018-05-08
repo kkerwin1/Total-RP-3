@@ -211,6 +211,7 @@ local function animateMarker(marker, x, y, directAnimation)
 		marker:Show();
 	end
 end
+TRP3_API.map.animateMarker = animateMarker;
 
 local DECORATION_TYPES = {
 	HOUSE = "house",
@@ -241,6 +242,7 @@ local function decorateMarker(marker, decorationType)
 	local layer = marker.Icon:GetDrawLayer();
 	marker.Icon:SetDrawLayer(layer, marker.iconSublevel or 0);
 end
+TRP3_API.map.decorateMarker = decorateMarker;
 
 ---@param structure table
 local function displayMarkers(structure)
@@ -333,7 +335,7 @@ function launchScan(scanID)
 					if structure.scanComplete then
 						structure.scanComplete(structure.saveStructure);
 					end
-					displayMarkers(structure);
+					TRP3_API.MapDataProvider:SignalEvent("TRP3_MARKERS_UPDATED", structure);
 					TRP3_API.ui.misc.playSoundKit(43493);
 				end
 				playAnimation(TRP3_ScanLoaderBackAnimationGrow1);
@@ -352,7 +354,7 @@ function launchScan(scanID)
 			if structure.scanComplete then
 				structure.scanComplete(structure.saveStructure);
 			end
-			displayMarkers(structure);
+			TRP3_API.MapDataProvider:SignalEvent("TRP3_MARKERS_UPDATED", structure);
 			TRP3_API.ui.misc.playSoundKit(43493);
 		end
 	end
