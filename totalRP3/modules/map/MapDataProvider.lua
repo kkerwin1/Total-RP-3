@@ -99,4 +99,4 @@ end
 
 TRP3_API.MapDataProvider = TRP3_MapDataProviderMixin;
 
-TestWorldMapFrame:AddDataProvider(TRP3_MapDataProviderMixin);
+WorldMapFrame:AddDataProvider(TRP3_MapDataProviderMixin);

@@ -825,8 +825,8 @@ local function placeMapButton(position)
 	---@type Frame
 	local worldMapButton = TRP3_WorldMapButton;
 
-	worldMapButton:SetParent(TestWorldMapFrame.BorderFrame);
-	TRP3_ScanLoaderFrame:SetParent(TestWorldMapFrame.BorderFrame)
+	worldMapButton:SetParent(WorldMapFrame.BorderFrame);
+	TRP3_ScanLoaderFrame:SetParent(WorldMapFrame.BorderFrame)
 	worldMapButton:ClearAllPoints();
 
 	local xPadding = 10;
@@ -842,7 +842,7 @@ local function placeMapButton(position)
 		yPadding = 40;
 	end
 
-	worldMapButton:SetPoint(position, TestWorldMapFrame.BorderFrame, position, xPadding, yPadding);
+	worldMapButton:SetPoint(position, WorldMapFrame.ScrollContainer, position, xPadding, yPadding);
 
 	setConfigValue(CONFIG_MAP_BUTTON_POSITION, position);
 end
