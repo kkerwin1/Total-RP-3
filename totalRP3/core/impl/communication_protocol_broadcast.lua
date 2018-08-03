@@ -257,7 +257,7 @@ Comm.broadcast.init = function()
 				else
 					Log.log("Step 2: Connected to broadcast channel: " .. config_BroadcastChannel() .. ". Now sending HELLO command.");
 					if not helloWorlded then
-						broadcast(HELLO_CMD, Globals.version, Globals.version_display);
+						broadcast(HELLO_CMD, Globals.version, Globals.version_display, Globals.extended_version, Globals.extended_display_version);
 					end
 				end
 			end, 9);
