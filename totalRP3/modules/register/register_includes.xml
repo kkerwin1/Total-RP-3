@@ -65,4 +65,6 @@
 
 	<Include file="filter\register_mature_filter.xml" />
 
+	<Include file="TooltipIndicators/TooltipIndicators.xml" />
+
 </Ui>

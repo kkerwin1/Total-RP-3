@@ -39,7 +39,7 @@ local getYourCharacter = TRP3_API.profile.getPlayerCharacter;
 local IsUnitIDKnown = TRP3_API.register.isUnitIDKnown;
 local UnitAffectingCombat = UnitAffectingCombat;
 local Events = TRP3_API.events;
-local GameTooltip, _G, pairs, wipe, tinsert, strtrim = GameTooltip, _G, pairs, wipe, tinsert, strtrim;
+local GameTooltip, _G, wipe, tinsert, strtrim = GameTooltip, _G, wipe, tinsert, strtrim;
 local UnitName, UnitPVPName, UnitFactionGroup, UnitIsAFK, UnitIsDND = UnitName, UnitPVPName, UnitFactionGroup, UnitIsAFK, UnitIsDND;
 local UnitIsPVP, UnitRace, UnitLevel, GetGuildInfo, UnitIsPlayer, UnitClass = UnitIsPVP, UnitRace, UnitLevel, GetGuildInfo, UnitIsPlayer, UnitClass;
 local hasProfile, getRelationColors = TRP3_API.register.hasProfile, TRP3_API.register.relation.getRelationColors;
@@ -644,6 +644,10 @@ local function writeTooltipForCharacter(targetID, originalTexts, targetType)
 		tooltipBuilder:AddLine(loc.REG_TT_TARGET:format(name), 1, 1, 1, getSubLineFontSize());
 	end
 
+	for _, tooltipIndicator in ipairs(AddOn_TotalRP3.unitTooltipIndicators) do
+		tooltipIndicator:DisplayInsideTooltipForTarget(tooltipBuilder, targetType, AddOn_TotalRP3.TARGET_TYPES.TYPE_CHARACTER)
+	end
+
 	--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 	-- Quick peek & new description notifications & Client
 	--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -864,6 +868,10 @@ local function writeCompanionTooltip(companionFullID, originalTexts, targetType,
 		end
 
 		tooltipBuilder:AddLine(text, 1, 1, 1, getSubLineFontSize());
+	end
+
+	for _, tooltipIndicator in ipairs(AddOn_TotalRP3.unitTooltipIndicators) do
+		tooltipIndicator:DisplayInsideTooltipForTarget(tooltipBuilder, targetType, targetMode)
 	end
 
 	--*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*

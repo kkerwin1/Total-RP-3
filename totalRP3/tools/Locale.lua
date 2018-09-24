@@ -1310,6 +1310,8 @@ This version focuses on bug fixes and improvements of Total RP 3's compatibility
 	--- THEN MOVE IT UP ONCE IMPORTED
 	------------------------------------------------------------------------------------------------
 
+	CO_TOOLTIP_HEALTH_INDICATOR = "Show health percentage",
+	REG_TT_HEALTH = "Health:"
 };
 
 -- Use Ellyb to generate the Localization system
