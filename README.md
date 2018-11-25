@@ -1,3 +1,5 @@
+This repository is a local copy of the TRP3 addon by Ellypse, et al. It is included in the TRP3: Legends repository for reference. The TRP3 repository (as distinct from TRP3: Legends repository) is incorporated here as a submodule; cf <https://git-scm.com/book/en/v2/Git-Tools-Submodules> for further details. The text below is written by the authors of TRP3.
+
 # Total RP 3 is the brand new roleplay add-on from the creators of Total RP 1 and 2!
 
 Download on [Curse].
